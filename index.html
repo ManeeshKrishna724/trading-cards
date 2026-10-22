@@ -20,13 +20,13 @@
   .bg-image { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     object-fit: cover; z-index: 0; background-color: #111; 
-    transition: opacity 0.5s ease;
   }
 
   .glass-overlay { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-    background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.95) 100%); 
-    z-index: 1; backdrop-filter: blur(2px);
+    /* Very subtle blur to keep the art crisp */
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%); 
+    z-index: 1; backdrop-filter: blur(0.5px);
   }
 
   .card-content { 
@@ -57,20 +57,22 @@
   .sub-header { display: flex; gap: 16px; margin-top: 16px; }
   .sub-tag { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500; }
 
-  /* PnL Section */
-  .pnl-section { text-align: left; margin: 20px 0; }
+  /* PnL Section - MASSIVE CONTRAST */
+  .pnl-section { text-align: left; margin: 10px 0; }
   .pnl-percent { 
-    font-size: 72px; font-weight: 900; margin: 0; line-height: 1; 
-    letter-spacing: -2px; display: flex; align-items: center; gap: 8px;
+    font-size: 96px; /* Way bigger */
+    font-weight: 900; margin: 0; line-height: 0.9; 
+    letter-spacing: -3px; display: flex; align-items: center; gap: 8px;
   }
   .pnl-amount { 
-    font-size: 22px; font-weight: 600; margin-top: 8px; opacity: 0.8; 
+    font-size: 16px; /* Much smaller */
+    font-weight: 500; margin-top: 12px; opacity: 0.7; 
     letter-spacing: 0.5px;
   }
   
-  .pnl.green { color: #34D399; text-shadow: 0 0 30px rgba(52, 211, 153, 0.4); }
-  .pnl.red { color: #F87171; text-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
-  .arrow { font-size: 48px; font-weight: 400; }
+  .pnl.green { color: #34D399; text-shadow: 0 0 40px rgba(52, 211, 153, 0.3); }
+  .pnl.red { color: #F87171; text-shadow: 0 0 40px rgba(248, 113, 113, 0.3); }
+  .arrow { font-size: 64px; font-weight: 300; }
 
   /* Chart */
   .chart-container { width: 100%; height: 60px; margin-bottom: 20px; opacity: 0.6; }
@@ -144,7 +146,7 @@
     
     // 4. Update PnL Styling
     const color = isWin ? '#34D399' : '#F87171';
-    const arrow = isWin ? '' : '↘';
+    const arrow = isWin ? '↗' : '↘';
     const sign = isWin ? '+' : '';
     
     const percentEl = document.getElementById('outPnlPercent');
