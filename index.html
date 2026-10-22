@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PnL Card</title>
+<title>Card</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   body { margin: 0; padding: 40px; background: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -23,9 +23,10 @@
     object-fit: cover; z-index: 0; background-color: #111; 
   }
 
+  /* LIGHTER OVERLAY: Reduced opacity so the art shows through better */
   .glass-overlay { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-    background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.75) 40%, rgba(0,0,0,0.98) 100%); 
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.85) 100%); 
     z-index: 1; backdrop-filter: blur(0.5px);
   }
 
@@ -131,7 +132,7 @@
     <div class="pnl-section">
       <div class="pnl-row">
         <span class="pnl-value text-green" id="outPnlPercent">+2.4%</span>
-        <span class="arrow text-green" id="outArrow"></span>
+        <span class="arrow text-green" id="outArrow">↗</span>
       </div>
       <div class="pnl-amount" id="outPnlAmount" style="color: #34D399;">+$306.48</div>
     </div>
@@ -173,13 +174,15 @@
     document.getElementById('outDate').innerText = document.getElementById('inDate').value;
     document.getElementById('outSession').innerText = document.getElementById('inSession').value;
     
-    // Add " trade" if it's not already there
     let rawTradeType = document.getElementById('inTradeType').value;
     document.getElementById('outTradeType').innerText = rawTradeType.toLowerCase().includes('trade') ? rawTradeType : rawTradeType + ' trade';
     
     const percentEl = document.getElementById('outPnlPercent');
     percentEl.className = `pnl-value ${colorClass}`;
-    percentEl.innerText = `${sign}${document.getElementById('inPnlPercent').value}%`;
+    
+    // FIX: Math.abs() ensures we never get a double negative like --1%
+    const percentVal = Math.abs(parseFloat(document.getElementById('inPnlPercent').value));
+    percentEl.innerText = `${sign}${percentVal}%`;
 
     const arrowEl = document.getElementById('outArrow');
     arrowEl.className = `arrow ${colorClass}`;
