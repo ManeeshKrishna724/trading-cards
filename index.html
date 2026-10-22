@@ -62,7 +62,6 @@
   
   .pnl-row { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 5px; }
   
-  /* Reduced by 65% (170px -> 60px) */
   .pnl-value { 
     font-size: 60px; 
     font-weight: 900; 
@@ -70,7 +69,6 @@
     letter-spacing: -2px; 
   }
   
-  /* Arrow stays exactly its normal size */
   .arrow { 
     font-size: 60px; 
     font-weight: 400; 
@@ -126,14 +124,14 @@
       <div class="sub-header">
         <span class="sub-tag" id="outDate">Oct 24, 2023</span>
         <span class="sub-tag" id="outSession">NY Session</span>
-        <span class="sub-tag" id="outTradeType">Continuation</span>
+        <span class="sub-tag" id="outTradeType">Continuation trade</span>
       </div>
     </div>
 
     <div class="pnl-section">
       <div class="pnl-row">
         <span class="pnl-value text-green" id="outPnlPercent">+2.4%</span>
-        <span class="arrow text-green" id="outArrow">↗</span>
+        <span class="arrow text-green" id="outArrow"></span>
       </div>
       <div class="pnl-amount" id="outPnlAmount" style="color: #34D399;">+$306.48</div>
     </div>
@@ -159,13 +157,13 @@
 
     const pnlAmount = parseFloat(document.getElementById('inPnlAmount').value) || 0;
     
-    let colorClass, arrow;
+    let colorClass, arrow, sign;
     if (pnlAmount > 0) {
-        colorClass = 'text-green'; arrow = '↗';
+        colorClass = 'text-green'; arrow = '↗'; sign = '+';
     } else if (pnlAmount < 0) {
-        colorClass = 'text-red'; arrow = '↘';
+        colorClass = 'text-red'; arrow = '↘'; sign = '-';
     } else {
-        colorClass = 'text-neutral'; arrow = '→';
+        colorClass = 'text-neutral'; arrow = '→'; sign = '';
     }
 
     document.getElementById('outAsset').innerText = document.getElementById('inAsset').value;
@@ -174,11 +172,14 @@
     document.getElementById('outAccount').innerText = document.getElementById('inAccount').value;
     document.getElementById('outDate').innerText = document.getElementById('inDate').value;
     document.getElementById('outSession').innerText = document.getElementById('inSession').value;
-    document.getElementById('outTradeType').innerText = document.getElementById('inTradeType').value;
+    
+    // Add " trade" if it's not already there
+    let rawTradeType = document.getElementById('inTradeType').value;
+    document.getElementById('outTradeType').innerText = rawTradeType.toLowerCase().includes('trade') ? rawTradeType : rawTradeType + ' trade';
     
     const percentEl = document.getElementById('outPnlPercent');
     percentEl.className = `pnl-value ${colorClass}`;
-    percentEl.innerText = `${pnlAmount > 0 ? '+' : ''}${document.getElementById('inPnlPercent').value}%`;
+    percentEl.innerText = `${sign}${document.getElementById('inPnlPercent').value}%`;
 
     const arrowEl = document.getElementById('outArrow');
     arrowEl.className = `arrow ${colorClass}`;
@@ -187,7 +188,7 @@
     const amountEl = document.getElementById('outPnlAmount');
     let hexColor = colorClass === 'text-green' ? '#34D399' : (colorClass === 'text-red' ? '#F87171' : '#FFFFFF');
     amountEl.style.color = hexColor;
-    amountEl.innerText = `${pnlAmount > 0 ? '+' : ''}$${Math.abs(pnlAmount).toFixed(2)}`;
+    amountEl.innerText = `${sign}$${Math.abs(pnlAmount).toFixed(2)}`;
 
     const chartLine = document.getElementById('chartLine');
     chartLine.setAttribute('stroke', hexColor);
