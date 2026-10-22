@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PnL Card</title>
-<!-- html2canvas library for downloading the image -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   body { margin: 0; padding: 40px; background: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -24,9 +23,10 @@
     object-fit: cover; z-index: 0; background-color: #111; 
   }
 
+  /* Darker gradient to ensure text is ALWAYS readable over bright paintings */
   .glass-overlay { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.9) 100%); 
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.75) 40%, rgba(0,0,0,0.98) 100%); 
     z-index: 1; backdrop-filter: blur(0.5px);
   }
 
@@ -54,15 +54,15 @@
     background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px;
   }
 
-  /* Subheader */
-  .sub-header { display: flex; gap: 16px; margin-top: 16px; }
+  /* Subheader - Stacked vertically now */
+  .sub-header { display: flex; flex-direction: column; gap: 4px; margin-top: 16px; }
   .sub-tag { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500; }
 
-  /* PnL Section */
+  /* PnL Section - MASSIVE font */
   .pnl-section { text-align: left; margin: 10px 0; }
   .pnl-percent { 
-    font-size: 96px; font-weight: 900; margin: 0; line-height: 0.9; 
-    letter-spacing: -3px; display: flex; align-items: center; gap: 8px;
+    font-size: 120px; font-weight: 900; margin: 0; line-height: 1; 
+    letter-spacing: -4px; display: flex; align-items: center; gap: 8px;
   }
   .pnl-amount { 
     font-size: 16px; font-weight: 500; margin-top: 12px; opacity: 0.7; 
@@ -71,35 +71,27 @@
   
   .pnl.green { color: #34D399; text-shadow: 0 0 40px rgba(52, 211, 153, 0.3); }
   .pnl.red { color: #F87171; text-shadow: 0 0 40px rgba(248, 113, 113, 0.3); }
-  .arrow { font-size: 64px; font-weight: 300; }
+  .pnl.neutral { color: #FFFFFF; text-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
+  .arrow { font-size: 80px; font-weight: 300; }
 
   /* Chart */
   .chart-container { width: 100%; height: 60px; margin-bottom: 20px; opacity: 0.6; }
   .chart-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* Footer */
+  /* Footer - No uppercase */
   .footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; display: flex; justify-content: center; }
-  .footer-text { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+  .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); letter-spacing: 1px; font-weight: 600; }
 
-  /* Download Button (Outside the card) */
+  /* Download Button */
   #downloadBtn {
-    margin-top: 30px;
-    padding: 12px 24px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.2s;
+    margin-top: 30px; padding: 12px 24px; background: #fff; color: #000;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer;
   }
   #downloadBtn:hover { transform: scale(1.05); }
 </style>
 </head>
 <body>
 
-<!-- The Card -->
 <div id="card">
   <img class="bg-image" id="bgImage" src="" alt="Background">
   <div class="glass-overlay"></div>
@@ -119,7 +111,6 @@
       
       <div class="sub-header">
         <span class="sub-tag" id="outDate">Oct 24, 2023</span>
-        <span class="sub-tag">•</span>
         <span class="sub-tag" id="outSession">NY Session</span>
       </div>
     </div>
@@ -141,20 +132,25 @@
   </div>
 </div>
 
-<!-- The Button -->
-<button id="downloadBtn" onclick="downloadCard()"> Download PNG</button>
+<button id="downloadBtn" onclick="downloadCard()">⬇ Download PNG</button>
 
 <script>
   function updateCard() {
-    // 1. Random Background Logic
-    const randomNum = Math.floor(Math.random() * 15) + 1; // Picks 1 to 15
+    const randomNum = Math.floor(Math.random() * 15) + 1; 
     document.getElementById('bgImage').src = `images/img${randomNum}.jpg`;
 
-    // 2. Get Data
     const pnlAmount = parseFloat(document.getElementById('inPnlAmount').value) || 0;
-    const isWin = pnlAmount >= 0;
+    
+    // Handle Win, Loss, and Breakeven
+    let color, arrow, sign, pnlClass;
+    if (pnlAmount > 0) {
+        color = '#34D399'; arrow = '↗'; sign = '+'; pnlClass = 'green';
+    } else if (pnlAmount < 0) {
+        color = '#F87171'; arrow = '↘'; sign = ''; pnlClass = 'red';
+    } else {
+        color = '#FFFFFF'; arrow = '→'; sign = ''; pnlClass = 'neutral'; // Breakeven
+    }
 
-    // 3. Update Text
     document.getElementById('outAsset').innerText = document.getElementById('inAsset').value;
     document.getElementById('outAssetName').innerText = document.getElementById('inAsset').value;
     document.getElementById('outDirection').innerText = document.getElementById('inDirection').value;
@@ -162,20 +158,14 @@
     document.getElementById('outDate').innerText = document.getElementById('inDate').value;
     document.getElementById('outSession').innerText = document.getElementById('inSession').value;
     
-    // 4. Update PnL Styling
-    const color = isWin ? '#34D399' : '#F87171';
-    const arrow = isWin ? '↗' : '↘';
-    const sign = isWin ? '+' : '';
-    
     const percentEl = document.getElementById('outPnlPercent');
-    percentEl.className = `pnl ${isWin ? 'green' : 'red'}`;
+    percentEl.className = `pnl ${pnlClass}`;
     percentEl.innerHTML = `${sign}${document.getElementById('inPnlPercent').value}% <span class="arrow">${arrow}</span>`;
     
     const amountEl = document.getElementById('outPnlAmount');
     amountEl.style.color = color;
     amountEl.innerText = `${sign}$${Math.abs(pnlAmount).toFixed(2)}`;
 
-    // 5. Draw Chart
     const chartLine = document.getElementById('chartLine');
     chartLine.setAttribute('stroke', color);
     chartLine.setAttribute('filter', `drop-shadow(0 0 6px ${color})`);
@@ -184,7 +174,7 @@
     let currentY = 50;
     for(let i=1; i<=8; i++) {
       let x = i * 43;
-      let trend = isWin ? -6 : 6;
+      let trend = pnlAmount > 0 ? -6 : (pnlAmount < 0 ? 6 : 0); // Flat line for breakeven
       let random = (Math.random() - 0.5) * 15;
       currentY = Math.max(10, Math.min(50, currentY + trend + random));
       points += `${x},${currentY} `;
@@ -192,10 +182,8 @@
     chartLine.setAttribute('points', points);
   }
 
-  // Download Function
   function downloadCard() {
     const card = document.getElementById('card');
-    // useCORS is required to let the script read images from GitHub
     html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
       const link = document.createElement('a');
       link.download = `PnL-${document.getElementById('inAsset').value}-${Date.now()}.png`;
@@ -204,7 +192,6 @@
     });
   }
 
-  // Read URL Parameters
   window.onload = function() {
     const params = new URLSearchParams(window.location.search);
     if(params.has('asset')) document.getElementById('inAsset').value = params.get('asset');
@@ -218,7 +205,6 @@
   };
 </script>
 
-<!-- Hidden inputs to hold the data -->
 <input type="hidden" id="inAsset" value="NQ">
 <input type="hidden" id="inPnlPercent" value="2.4">
 <input type="hidden" id="inPnlAmount" value="306.48">
