@@ -5,55 +5,121 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PnL Card</title>
 <style>
-  body { margin: 0; padding: 40px; background: #0a0a0a; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  #card { width: 400px; border-radius: 24px; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); }
-  .bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-  .glass-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.2) 100%); z-index: 1; }
-  .card-content { position: relative; z-index: 2; padding: 32px; color: #fff; }
+  body { margin: 0; padding: 40px; background: transparent; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   
-  .header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-  .logo { width: 24px; height: 24px; background: #007AFF; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: white; }
-  .ticker { font-size: 14px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,0.8); }
-  
-  .pnl { font-size: 48px; font-weight: 800; margin: 0 0 16px 0; display: flex; align-items: center; gap: 12px; }
-  .pnl.green { color: #34D399; }
-  .pnl.red { color: #F87171; }
-  .arrow { font-size: 32px; }
-  
-  .chart-container { width: 100%; height: 60px; margin: 16px 0; opacity: 0.7; }
-  .chart-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-  
-  .stats { display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 16px; margin-top: 16px; }
-  .stat-box { display: flex; flex-direction: column; gap: 4px; }
-  .stat-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat-value { font-size: 15px; font-weight: 600; color: #fff; }
+  /* The Card Container */
+  #card { 
+    width: 380px; 
+    height: 520px; 
+    border-radius: 20px; 
+    position: relative; 
+    overflow: hidden; 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Background Image - Using a reliable dark classical painting */
+  .bg-image { 
+    position: absolute; 
+    top: 0; left: 0; 
+    width: 100%; height: 100%; 
+    object-fit: cover; 
+    z-index: 0; 
+    /* Fallback color if image fails */
+    background-color: #1a1a1a; 
+  }
+
+  /* Dark overlay to make text readable */
+  .glass-overlay { 
+    position: absolute; 
+    top: 0; left: 0; 
+    width: 100%; height: 100%; 
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%); 
+    z-index: 1; 
+    backdrop-filter: blur(2px);
+  }
+
+  .card-content { 
+    position: relative; 
+    z-index: 2; 
+    padding: 30px; 
+    height: 100%; 
+    box-sizing: border-box; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between;
+    color: #fff; 
+  }
+
+  /* Header */
+  .header { display: flex; align-items: center; gap: 10px; }
+  .logo { 
+    width: 28px; height: 28px; 
+    background: #007AFF; 
+    border-radius: 6px; 
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 10px; font-weight: 900; color: white; 
+  }
+  .ticker-group { display: flex; flex-direction: column; }
+  .ticker { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+  .session { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+  /* Chart Area */
+  .chart-container { width: 100%; height: 100px; margin: 20px 0; opacity: 0.8; }
+  .chart-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.5)); }
+
+  /* PnL */
+  .pnl-section { text-align: left; margin-bottom: 20px; }
+  .pnl { font-size: 52px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px; letter-spacing: -1px; }
+  .pnl.green { color: #34D399; text-shadow: 0 0 20px rgba(52, 211, 153, 0.3); }
+  .pnl.red { color: #F87171; text-shadow: 0 0 20px rgba(248, 113, 113, 0.3); }
+  .arrow { font-size: 36px; font-weight: 400; }
+
+  /* Stats Footer */
+  .stats { 
+    display: flex; 
+    justify-content: space-between; 
+    border-top: 1px solid rgba(255,255,255,0.15); 
+    padding-top: 20px; 
+  }
+  .stat-box { display: flex; flex-direction: column; gap: 6px; }
+  .stat-label { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .stat-value { font-size: 14px; font-weight: 600; color: #fff; }
 </style>
 </head>
 <body>
 
 <div id="card">
-  <img class="bg-image" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Carl_von_Piloty_-_Murder_of_Caesar.jpg/800px-Carl_von_Piloty_-_Murder_of_Caesar.jpg" alt="Background">
+  <!-- Reliable classical painting background -->
+  <img class="bg-image" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Rembrandt_van_Rijn_-_The_Night_Watch_-_Google_Art_Project.jpg/800px-Rembrandt_van_Rijn_-_The_Night_Watch_-_Google_Art_Project.jpg" alt="Background">
   <div class="glass-overlay"></div>
   
   <div class="card-content">
     <div class="header">
-      <div class="logo">MNQ</div>
-      <div class="ticker" id="outTicker">MNQ LONG</div>
+      <div class="logo" id="outLogo">MNQ</div>
+      <div class="ticker-group">
+        <div class="ticker" id="outTicker">MNQ LONG</div>
+        <div class="session" id="outSession">NY SESSION • 09:30 AM</div>
+      </div>
     </div>
     
-    <div class="pnl green" id="outPnl">+$306.48 <span class="arrow">↗</span></div>
-    
-    <svg class="chart-container" viewBox="0 0 400 60">
-      <polyline class="chart-line" id="chartLine" points="" />
-    </svg>
+    <div class="chart-container">
+      <svg width="100%" height="100%" viewBox="0 0 320 100" preserveAspectRatio="none">
+        <polyline class="chart-line" id="chartLine" points="" />
+      </svg>
+    </div>
+
+    <div class="pnl-section">
+      <div class="pnl green" id="outPnl">+$306.48 <span class="arrow">↗</span></div>
+    </div>
     
     <div class="stats">
       <div class="stat-box">
         <span class="stat-label">Entry → Exit</span>
-        <span class="stat-value" id="outPrices">29,805.02 → 29,871.00</span>
+        <span class="stat-value" id="outPrices">29,805 → 29,871</span>
       </div>
       <div class="stat-box" style="text-align: right;">
-        <span class="stat-label">Size • Risk/Reward</span>
+        <span class="stat-label">Size • R:R</span>
         <span class="stat-value" id="outSize">3 contracts • 1:2.4</span>
       </div>
     </div>
@@ -62,32 +128,40 @@
 
 <script>
   function updateCard() {
+    // Get values from hidden inputs (which are filled by URL params)
     const pnl = parseFloat(document.getElementById('inPnl').value) || 0;
     const isWin = pnl >= 0;
     
+    // Update Text
     document.getElementById('outTicker').innerText = document.getElementById('inTicker').value;
+    document.getElementById('outLogo').innerText = document.getElementById('inTicker').value.split(' ')[0]; // Takes first word for logo
+    document.getElementById('outSession').innerText = document.getElementById('inSession').value;
     document.getElementById('outPrices').innerText = `${document.getElementById('inEntry').value} → ${document.getElementById('inExit').value}`;
     document.getElementById('outSize').innerText = `${document.getElementById('inSize').value} • ${document.getElementById('inRr').value}`;
     
+    // Update PnL Color and Text
     const pnlEl = document.getElementById('outPnl');
     pnlEl.className = `pnl ${isWin ? 'green' : 'red'}`;
     pnlEl.innerHTML = `${isWin ? '+' : ''}$${Math.abs(pnl).toFixed(2)} <span class="arrow">${isWin ? '↗' : '↘'}</span>`;
     
+    // Draw Chart
     const chartLine = document.getElementById('chartLine');
     chartLine.setAttribute('stroke', isWin ? '#34D399' : '#F87171');
-    let points = "0,50 ";
-    let currentY = 50;
-    for(let i=1; i<=10; i++) {
+    chartLine.setAttribute('filter', `drop-shadow(0 0 4px ${isWin ? 'rgba(52, 211, 153, 0.5)' : 'rgba(248, 113, 113, 0.5)'})`);
+    
+    let points = "0,80 ";
+    let currentY = 80;
+    for(let i=1; i<=8; i++) {
       let x = i * 40;
-      let trend = isWin ? -3 : 3;
-      let random = (Math.random() - 0.5) * 15;
-      currentY = Math.max(5, Math.min(55, currentY + trend + random));
+      let trend = isWin ? -8 : 8; // Up or down trend
+      let random = (Math.random() - 0.5) * 20;
+      currentY = Math.max(10, Math.min(90, currentY + trend + random));
       points += `${x},${currentY} `;
     }
     chartLine.setAttribute('points', points);
   }
 
-  // AUTO-FILL FROM URL PARAMETERS
+  // Read URL Parameters
   window.onload = function() {
     const params = new URLSearchParams(window.location.search);
     if(params.has('ticker')) document.getElementById('inTicker').value = params.get('ticker');
@@ -96,17 +170,19 @@
     if(params.has('exit')) document.getElementById('inExit').value = params.get('exit');
     if(params.has('size')) document.getElementById('inSize').value = params.get('size');
     if(params.has('rr')) document.getElementById('inRr').value = params.get('rr');
+    if(params.has('session')) document.getElementById('inSession').value = params.get('session');
     updateCard();
   };
 </script>
 
-<!-- Hidden inputs for the script to read -->
+<!-- Hidden inputs to hold the data -->
 <input type="hidden" id="inTicker" value="MNQ LONG">
 <input type="hidden" id="inPnl" value="306.48">
-<input type="hidden" id="inEntry" value="29,805.02">
-<input type="hidden" id="inExit" value="29,871.00">
+<input type="hidden" id="inEntry" value="29,805">
+<input type="hidden" id="inExit" value="29,871">
 <input type="hidden" id="inSize" value="3 contracts">
 <input type="hidden" id="inRr" value="1:2.4">
+<input type="hidden" id="inSession" value="NY SESSION">
 
 </body>
 </html>
