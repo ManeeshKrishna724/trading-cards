@@ -23,7 +23,6 @@
     object-fit: cover; z-index: 0; background-color: #111; 
   }
 
-  /* Darker gradient to ensure text is ALWAYS readable over bright paintings */
   .glass-overlay { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.75) 40%, rgba(0,0,0,0.98) 100%); 
@@ -54,33 +53,49 @@
     background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px;
   }
 
-  /* Subheader - Stacked vertically now */
+  /* Subheader */
   .sub-header { display: flex; flex-direction: column; gap: 4px; margin-top: 16px; }
   .sub-tag { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500; }
 
-  /* PnL Section - MASSIVE font */
+  /* PnL Section */
   .pnl-section { text-align: left; margin: 10px 0; }
-  .pnl-percent { 
-    font-size: 120px; font-weight: 900; margin: 0; line-height: 1; 
-    letter-spacing: -4px; display: flex; align-items: center; gap: 8px;
+  
+  /* Flex row to keep number and arrow separate */
+  .pnl-row { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 5px; }
+  
+  /* MASSIVE Number and % */
+  .pnl-value { 
+    font-size: 170px; 
+    font-weight: 900; 
+    line-height: 0.85; 
+    letter-spacing: -6px; 
   }
+  
+  /* Arrow stays exactly its normal size */
+  .arrow { 
+    font-size: 60px; 
+    font-weight: 400; 
+    line-height: 0.9; 
+    margin-bottom: 12px; 
+  }
+  
   .pnl-amount { 
-    font-size: 16px; font-weight: 500; margin-top: 12px; opacity: 0.7; 
+    font-size: 16px; font-weight: 500; margin-top: 5px; opacity: 0.7; 
     letter-spacing: 0.5px;
   }
   
-  .pnl.green { color: #34D399; text-shadow: 0 0 40px rgba(52, 211, 153, 0.3); }
-  .pnl.red { color: #F87171; text-shadow: 0 0 40px rgba(248, 113, 113, 0.3); }
-  .pnl.neutral { color: #FFFFFF; text-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
-  .arrow { font-size: 80px; font-weight: 300; }
+  /* Colors */
+  .text-green { color: #34D399; text-shadow: 0 0 40px rgba(52, 211, 153, 0.3); }
+  .text-red { color: #F87171; text-shadow: 0 0 40px rgba(248, 113, 113, 0.3); }
+  .text-neutral { color: #FFFFFF; text-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
 
   /* Chart */
   .chart-container { width: 100%; height: 60px; margin-bottom: 20px; opacity: 0.6; }
   .chart-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* Footer - No uppercase */
+  /* Footer - Bigger font, exact spelling */
   .footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; display: flex; justify-content: center; }
-  .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); letter-spacing: 1px; font-weight: 600; }
+  .footer-text { font-size: 16px; color: rgba(255,255,255,0.7); letter-spacing: 1px; font-weight: 600; }
 
   /* Download Button */
   #downloadBtn {
@@ -116,7 +131,10 @@
     </div>
 
     <div class="pnl-section">
-      <div class="pnl green" id="outPnlPercent">+2.4% <span class="arrow">↗</span></div>
+      <div class="pnl-row">
+        <span class="pnl-value text-green" id="outPnlPercent">+2.4%</span>
+        <span class="arrow text-green" id="outArrow">↗</span>
+      </div>
       <div class="pnl-amount" id="outPnlAmount" style="color: #34D399;">+$306.48</div>
     </div>
 
@@ -136,19 +154,19 @@
 
 <script>
   function updateCard() {
-    const randomNum = Math.floor(Math.random() * 15) + 1; 
+    // Updated to support 51 images
+    const randomNum = Math.floor(Math.random() * 51) + 1; 
     document.getElementById('bgImage').src = `images/img${randomNum}.jpg`;
 
     const pnlAmount = parseFloat(document.getElementById('inPnlAmount').value) || 0;
     
-    // Handle Win, Loss, and Breakeven
-    let color, arrow, sign, pnlClass;
+    let colorClass, arrow;
     if (pnlAmount > 0) {
-        color = '#34D399'; arrow = '↗'; sign = '+'; pnlClass = 'green';
+        colorClass = 'text-green'; arrow = '↗';
     } else if (pnlAmount < 0) {
-        color = '#F87171'; arrow = '↘'; sign = ''; pnlClass = 'red';
+        colorClass = 'text-red'; arrow = '↘';
     } else {
-        color = '#FFFFFF'; arrow = '→'; sign = ''; pnlClass = 'neutral'; // Breakeven
+        colorClass = 'text-neutral'; arrow = '→'; // Breakeven
     }
 
     document.getElementById('outAsset').innerText = document.getElementById('inAsset').value;
@@ -158,23 +176,31 @@
     document.getElementById('outDate').innerText = document.getElementById('inDate').value;
     document.getElementById('outSession').innerText = document.getElementById('inSession').value;
     
+    // Apply color class to both the massive number and the small arrow
     const percentEl = document.getElementById('outPnlPercent');
-    percentEl.className = `pnl ${pnlClass}`;
-    percentEl.innerHTML = `${sign}${document.getElementById('inPnlPercent').value}% <span class="arrow">${arrow}</span>`;
+    percentEl.className = `pnl-value ${colorClass}`;
+    percentEl.innerText = `${pnlAmount > 0 ? '+' : ''}${document.getElementById('inPnlPercent').value}%`;
+
+    const arrowEl = document.getElementById('outArrow');
+    arrowEl.className = `arrow ${colorClass}`;
+    arrowEl.innerText = arrow;
     
     const amountEl = document.getElementById('outPnlAmount');
-    amountEl.style.color = color;
-    amountEl.innerText = `${sign}$${Math.abs(pnlAmount).toFixed(2)}`;
+    // Extract hex color from class for the amount text
+    let hexColor = colorClass === 'text-green' ? '#34D399' : (colorClass === 'text-red' ? '#F87171' : '#FFFFFF');
+    amountEl.style.color = hexColor;
+    amountEl.innerText = `${pnlAmount > 0 ? '+' : ''}$${Math.abs(pnlAmount).toFixed(2)}`;
 
+    // Draw Chart
     const chartLine = document.getElementById('chartLine');
-    chartLine.setAttribute('stroke', color);
-    chartLine.setAttribute('filter', `drop-shadow(0 0 6px ${color})`);
+    chartLine.setAttribute('stroke', hexColor);
+    chartLine.setAttribute('filter', `drop-shadow(0 0 6px ${hexColor})`);
     
     let points = "0,50 ";
     let currentY = 50;
     for(let i=1; i<=8; i++) {
       let x = i * 43;
-      let trend = pnlAmount > 0 ? -6 : (pnlAmount < 0 ? 6 : 0); // Flat line for breakeven
+      let trend = pnlAmount > 0 ? -6 : (pnlAmount < 0 ? 6 : 0); 
       let random = (Math.random() - 0.5) * 15;
       currentY = Math.max(10, Math.min(50, currentY + trend + random));
       points += `${x},${currentY} `;
