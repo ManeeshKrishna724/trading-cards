@@ -60,15 +60,14 @@
   /* PnL Section */
   .pnl-section { text-align: left; margin: 10px 0; }
   
-  /* Flex row to keep number and arrow separate */
   .pnl-row { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 5px; }
   
-  /* MASSIVE Number and % */
+  /* Reduced by 65% (170px -> 60px) */
   .pnl-value { 
-    font-size: 170px; 
+    font-size: 60px; 
     font-weight: 900; 
-    line-height: 0.85; 
-    letter-spacing: -6px; 
+    line-height: 1; 
+    letter-spacing: -2px; 
   }
   
   /* Arrow stays exactly its normal size */
@@ -93,7 +92,7 @@
   .chart-container { width: 100%; height: 60px; margin-bottom: 20px; opacity: 0.6; }
   .chart-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* Footer - Bigger font, exact spelling */
+  /* Footer */
   .footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; display: flex; justify-content: center; }
   .footer-text { font-size: 16px; color: rgba(255,255,255,0.7); letter-spacing: 1px; font-weight: 600; }
 
@@ -127,6 +126,7 @@
       <div class="sub-header">
         <span class="sub-tag" id="outDate">Oct 24, 2023</span>
         <span class="sub-tag" id="outSession">NY Session</span>
+        <span class="sub-tag" id="outTradeType">Continuation</span>
       </div>
     </div>
 
@@ -154,7 +154,6 @@
 
 <script>
   function updateCard() {
-    // Updated to support 51 images
     const randomNum = Math.floor(Math.random() * 51) + 1; 
     document.getElementById('bgImage').src = `images/img${randomNum}.jpg`;
 
@@ -166,7 +165,7 @@
     } else if (pnlAmount < 0) {
         colorClass = 'text-red'; arrow = '↘';
     } else {
-        colorClass = 'text-neutral'; arrow = '→'; // Breakeven
+        colorClass = 'text-neutral'; arrow = '→';
     }
 
     document.getElementById('outAsset').innerText = document.getElementById('inAsset').value;
@@ -175,8 +174,8 @@
     document.getElementById('outAccount').innerText = document.getElementById('inAccount').value;
     document.getElementById('outDate').innerText = document.getElementById('inDate').value;
     document.getElementById('outSession').innerText = document.getElementById('inSession').value;
+    document.getElementById('outTradeType').innerText = document.getElementById('inTradeType').value;
     
-    // Apply color class to both the massive number and the small arrow
     const percentEl = document.getElementById('outPnlPercent');
     percentEl.className = `pnl-value ${colorClass}`;
     percentEl.innerText = `${pnlAmount > 0 ? '+' : ''}${document.getElementById('inPnlPercent').value}%`;
@@ -186,12 +185,10 @@
     arrowEl.innerText = arrow;
     
     const amountEl = document.getElementById('outPnlAmount');
-    // Extract hex color from class for the amount text
     let hexColor = colorClass === 'text-green' ? '#34D399' : (colorClass === 'text-red' ? '#F87171' : '#FFFFFF');
     amountEl.style.color = hexColor;
     amountEl.innerText = `${pnlAmount > 0 ? '+' : ''}$${Math.abs(pnlAmount).toFixed(2)}`;
 
-    // Draw Chart
     const chartLine = document.getElementById('chartLine');
     chartLine.setAttribute('stroke', hexColor);
     chartLine.setAttribute('filter', `drop-shadow(0 0 6px ${hexColor})`);
@@ -227,6 +224,7 @@
     if(params.has('direction')) document.getElementById('inDirection').value = params.get('direction');
     if(params.has('session')) document.getElementById('inSession').value = params.get('session');
     if(params.has('account')) document.getElementById('inAccount').value = params.get('account');
+    if(params.has('tradeType')) document.getElementById('inTradeType').value = params.get('tradeType');
     updateCard();
   };
 </script>
@@ -238,6 +236,7 @@
 <input type="hidden" id="inDirection" value="LONG">
 <input type="hidden" id="inSession" value="NY Session">
 <input type="hidden" id="inAccount" value="Prop Firm">
+<input type="hidden" id="inTradeType" value="Continuation">
 
 </body>
 </html>
