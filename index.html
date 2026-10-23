@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Card</title>
+<title>PnL Card</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   body { margin: 0; padding: 40px; background: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -23,7 +23,6 @@
     object-fit: cover; z-index: 0; background-color: #111; 
   }
 
-  /* LIGHTER OVERLAY: Reduced opacity so the art shows through better */
   .glass-overlay { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.85) 100%); 
@@ -106,7 +105,8 @@
 <body>
 
 <div id="card">
-  <img class="bg-image" id="bgImage" src="" alt="Background">
+  <!-- SMART FALLBACK: If random image fails, picks a random image between 1 and 20 -->
+  <img class="bg-image" id="bgImage" src="" alt="Background" onerror="this.onerror=null; this.src='images/img' + (Math.floor(Math.random() * 20) + 1) + '.jpg';">
   <div class="glass-overlay"></div>
   
   <div class="card-content">
@@ -144,16 +144,17 @@
     </div>
 
     <div class="footer">
-      <div class="footer-text">Neo</div>
+      <div class="footer-text" id="outName">Neo</div>
     </div>
   </div>
 </div>
 
-<button id="downloadBtn" onclick="downloadCard()">⬇ Download PNG</button>
+<button id="downloadBtn" onclick="downloadCard()"> Download PNG</button>
 
 <script>
   function updateCard() {
-    const randomNum = Math.floor(Math.random() * 51) + 1; 
+    // Randomizer now looks for up to 100 images
+    const randomNum = Math.floor(Math.random() * 100) + 1; 
     document.getElementById('bgImage').src = `images/img${randomNum}.jpg`;
 
     const pnlAmount = parseFloat(document.getElementById('inPnlAmount').value) || 0;
@@ -173,6 +174,7 @@
     document.getElementById('outAccount').innerText = document.getElementById('inAccount').value;
     document.getElementById('outDate').innerText = document.getElementById('inDate').value;
     document.getElementById('outSession').innerText = document.getElementById('inSession').value;
+    document.getElementById('outName').innerText = document.getElementById('inName').value; // Update footer name
     
     let rawTradeType = document.getElementById('inTradeType').value;
     document.getElementById('outTradeType').innerText = rawTradeType.toLowerCase().includes('trade') ? rawTradeType : rawTradeType + ' trade';
@@ -180,7 +182,6 @@
     const percentEl = document.getElementById('outPnlPercent');
     percentEl.className = `pnl-value ${colorClass}`;
     
-    // FIX: Math.abs() ensures we never get a double negative like --1%
     const percentVal = Math.abs(parseFloat(document.getElementById('inPnlPercent').value));
     percentEl.innerText = `${sign}${percentVal}%`;
 
@@ -229,6 +230,7 @@
     if(params.has('session')) document.getElementById('inSession').value = params.get('session');
     if(params.has('account')) document.getElementById('inAccount').value = params.get('account');
     if(params.has('tradeType')) document.getElementById('inTradeType').value = params.get('tradeType');
+    if(params.has('name')) document.getElementById('inName').value = params.get('name'); // Read name from URL
     updateCard();
   };
 </script>
@@ -241,6 +243,7 @@
 <input type="hidden" id="inSession" value="NY Session">
 <input type="hidden" id="inAccount" value="Prop Firm">
 <input type="hidden" id="inTradeType" value="Continuation">
+<input type="hidden" id="inName" value="Neo">
 
 </body>
 </html>
