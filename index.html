@@ -23,6 +23,7 @@
     object-fit: cover; z-index: 0; background-color: #111; 
   }
 
+  /* Lighter overlay so the art is visible */
   .glass-overlay { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.85) 100%); 
@@ -35,7 +36,6 @@
     justify-content: space-between; color: #fff; 
   }
 
-  /* Header */
   .header { display: flex; justify-content: space-between; align-items: flex-start; }
   .asset-group { display: flex; align-items: center; gap: 12px; }
   .logo { 
@@ -53,48 +53,26 @@
     background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px;
   }
 
-  /* Subheader */
   .sub-header { display: flex; flex-direction: column; gap: 4px; margin-top: 16px; }
   .sub-tag { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500; }
 
-  /* PnL Section */
   .pnl-section { text-align: left; margin: 10px 0; }
-  
   .pnl-row { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 5px; }
   
-  .pnl-value { 
-    font-size: 60px; 
-    font-weight: 900; 
-    line-height: 1; 
-    letter-spacing: -2px; 
-  }
+  .pnl-value { font-size: 60px; font-weight: 900; line-height: 1; letter-spacing: -2px; }
+  .arrow { font-size: 60px; font-weight: 400; line-height: 0.9; margin-bottom: 12px; }
+  .pnl-amount { font-size: 16px; font-weight: 500; margin-top: 5px; opacity: 0.7; letter-spacing: 0.5px; }
   
-  .arrow { 
-    font-size: 60px; 
-    font-weight: 400; 
-    line-height: 0.9; 
-    margin-bottom: 12px; 
-  }
-  
-  .pnl-amount { 
-    font-size: 16px; font-weight: 500; margin-top: 5px; opacity: 0.7; 
-    letter-spacing: 0.5px;
-  }
-  
-  /* Colors */
   .text-green { color: #34D399; text-shadow: 0 0 40px rgba(52, 211, 153, 0.3); }
   .text-red { color: #F87171; text-shadow: 0 0 40px rgba(248, 113, 113, 0.3); }
   .text-neutral { color: #FFFFFF; text-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
 
-  /* Chart */
   .chart-container { width: 100%; height: 60px; margin-bottom: 20px; opacity: 0.6; }
   .chart-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* Footer */
   .footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; display: flex; justify-content: center; }
   .footer-text { font-size: 16px; color: rgba(255,255,255,0.7); letter-spacing: 1px; font-weight: 600; }
 
-  /* Download Button */
   #downloadBtn {
     margin-top: 30px; padding: 12px 24px; background: #fff; color: #000;
     border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer;
@@ -105,8 +83,7 @@
 <body>
 
 <div id="card">
-  <!-- SMART FALLBACK: If random image fails, picks a random image between 1 and 20 -->
-  <img class="bg-image" id="bgImage" src="" alt="Background" onerror="this.onerror=null; this.src='images/img' + (Math.floor(Math.random() * 20) + 1) + '.jpg';">
+  <img class="bg-image" id="bgImage" src="" alt="Background">
   <div class="glass-overlay"></div>
   
   <div class="card-content">
@@ -153,10 +130,19 @@
 
 <script>
   function updateCard() {
-    // Randomizer now looks for up to 100 images
+    // 1. SMART IMAGE FALLBACK LOGIC
+    const img = document.getElementById('bgImage');
     const randomNum = Math.floor(Math.random() * 100) + 1; 
-    document.getElementById('bgImage').src = `images/img${randomNum}.jpg`;
+    img.src = `images/img${randomNum}.jpg`;
+    
+    // If the browser fails to find the image, it triggers this fallback
+    img.onerror = function() {
+        this.onerror = null; // Prevents infinite looping
+        const fallbackNum = Math.floor(Math.random() * 20) + 1;
+        this.src = `images/img${fallbackNum}.jpg`;
+    };
 
+    // 2. DATA LOGIC
     const pnlAmount = parseFloat(document.getElementById('inPnlAmount').value) || 0;
     
     let colorClass, arrow, sign;
@@ -174,7 +160,7 @@
     document.getElementById('outAccount').innerText = document.getElementById('inAccount').value;
     document.getElementById('outDate').innerText = document.getElementById('inDate').value;
     document.getElementById('outSession').innerText = document.getElementById('inSession').value;
-    document.getElementById('outName').innerText = document.getElementById('inName').value; // Update footer name
+    document.getElementById('outName').innerText = document.getElementById('inName').value;
     
     let rawTradeType = document.getElementById('inTradeType').value;
     document.getElementById('outTradeType').innerText = rawTradeType.toLowerCase().includes('trade') ? rawTradeType : rawTradeType + ' trade';
@@ -230,7 +216,7 @@
     if(params.has('session')) document.getElementById('inSession').value = params.get('session');
     if(params.has('account')) document.getElementById('inAccount').value = params.get('account');
     if(params.has('tradeType')) document.getElementById('inTradeType').value = params.get('tradeType');
-    if(params.has('name')) document.getElementById('inName').value = params.get('name'); // Read name from URL
+    if(params.has('name')) document.getElementById('inName').value = params.get('name');
     updateCard();
   };
 </script>
