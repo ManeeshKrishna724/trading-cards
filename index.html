@@ -23,7 +23,6 @@
     object-fit: cover; z-index: 0; background-color: #111; 
   }
 
-  /* Lighter overlay so the art is visible */
   .glass-overlay { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.85) 100%); 
@@ -73,11 +72,28 @@
   .footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; display: flex; justify-content: center; }
   .footer-text { font-size: 16px; color: rgba(255,255,255,0.7); letter-spacing: 1px; font-weight: 600; }
 
-  #downloadBtn {
-    margin-top: 30px; padding: 12px 24px; background: #fff; color: #000;
-    border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer;
+  .button-group {
+    margin-top: 30px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
   }
-  #downloadBtn:hover { transform: scale(1.05); }
+
+  .btn {
+    padding: 12px 24px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .btn:hover { transform: scale(1.05); }
+  .btn-secondary { background: #333; color: #fff; }
+  
+  #fileInput { display: none; }
 </style>
 </head>
 <body>
@@ -126,23 +142,44 @@
   </div>
 </div>
 
-<button id="downloadBtn" onclick="downloadCard()"> Download PNG</button>
+<div class="button-group">
+  <button class="btn" onclick="document.getElementById('fileInput').click()">📷 Custom Cover</button>
+  <button class="btn" onclick="downloadCard()">⬇ Download PNG</button>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event)">
 
 <script>
+  let isCustomImage = false; // Track if user uploaded custom image
+
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = document.getElementById('bgImage');
+        img.src = e.target.result;
+        isCustomImage = true;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   function updateCard() {
-    // 1. SMART IMAGE FALLBACK LOGIC
-    const img = document.getElementById('bgImage');
-    const randomNum = Math.floor(Math.random() * 100) + 1; 
-    img.src = `images/img${randomNum}.jpg`;
-    
-    // If the browser fails to find the image, it triggers this fallback
-    img.onerror = function() {
-        this.onerror = null; // Prevents infinite looping
+    // Only use random image if user hasn't uploaded a custom one
+    if (!isCustomImage) {
+      const img = document.getElementById('bgImage');
+      const randomNum = Math.floor(Math.random() * 100) + 1; 
+      img.src = `images/img${randomNum}.jpg`;
+      
+      img.onerror = function() {
+        this.onerror = null;
         const fallbackNum = Math.floor(Math.random() * 20) + 1;
         this.src = `images/img${fallbackNum}.jpg`;
-    };
+      };
+    }
 
-    // 2. DATA LOGIC
     const pnlAmount = parseFloat(document.getElementById('inPnlAmount').value) || 0;
     
     let colorClass, arrow, sign;
